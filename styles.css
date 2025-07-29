@@ -1,0 +1,24 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.board {
+    display: grid;
+    height: 300px;
+    width: 300px;
+    grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr;
+}
+
+.turn {
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+    margin-top:10%;
+}
+
+.cell {
+    font-size: 50px;
+}
