@@ -140,11 +140,11 @@ function GameController(
 }
 
 // Display screen
-function ScreenController(p1, p2) {
-    const game = GameController(p1, p2);
+function ScreenController(playerOne, playerTwo) {
+    const game = GameController(playerOne, playerTwo);
     const playerTurnDiv = document.querySelector(".turn");
     const boardDiv = document.querySelector(".board");
-    const reset = document.querySelector(".reset");
+    const reset = document.querySelector("#reset");
 
     const updateScreen = () => {
         // Clear screen
@@ -177,17 +177,18 @@ function ScreenController(p1, p2) {
             })
         })
         
-        reset.addEventListener("click", () => {
-            game.reset()
-            // Reset cells
-            const cells = document.querySelectorAll(".cell");
-            cells.forEach(cell => {
-                cell.textContent = "";
-            })
-            // Reset player move
-            playerTurnDiv.textContent = `${game.getActivePlayer().name}'s turn...`;
-        });
-    }
+    };
+    
+    reset.addEventListener("click", () => {
+        game.reset()
+        // Reset cells
+        const cells = document.querySelectorAll(".cell");
+        cells.forEach(cell => {
+            cell.textContent = "";
+        })
+        // Reset player move
+        playerTurnDiv.textContent = `${game.getActivePlayer().name}'s turn...`;
+    })
     
     // Add Event listener
     function clickHandlerBoard(e) {
@@ -207,9 +208,12 @@ function ScreenController(p1, p2) {
     updateScreen();
 }
 
+
+// Get player names from a dialog option
 function Dialog() {
     const dialog = document.getElementById("playerDialog");
-    const form = document.getElementById("playerForm")
+    const form = document.getElementById("playerForm");
+    const resetButton = document.getElementById("reset");
     dialog.showModal();
 
     form.addEventListener("submit", (e) => {
@@ -221,6 +225,9 @@ function Dialog() {
         ScreenController(playerOne, playerTwo);
 
         dialog.close()
+
+        // Show reset button
+        resetButton.style.display = "inline-block";
 
     })
 }
