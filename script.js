@@ -69,14 +69,16 @@ function GameController(
         console.log(`${getActivePlayer().name}'s turn`);
     };
 
+    // Check game over
+    let gameOver = false;
+
     // Check win function
     const checkwin = (symbol, y, x) => {
-        
         const rowWin = board.getBoard()[y].every(cell => cell.getValue() === symbol);
         const colWin = board.getBoard().every(row => row[x].getValue() === symbol);
         
         const mainDiagWin = y === x && board.getBoard().every((r, i) => r[i].getValue() === symbol);
-        const antiDiagWin = y + x === 2 && board.getBoard().every((r, i) => r[2 - i].getValue() === symbol);
+        const antiDiagWin = parseInt(y) + parseInt(x) === 2 && board.getBoard().every((r, i) => r[2 - i].getValue() === symbol);
         
         return rowWin || colWin || mainDiagWin || antiDiagWin;
     };
@@ -90,18 +92,26 @@ function GameController(
 
     // Play rounds
     const playRound = (y, x) => {
+        if (gameOver) {
+            console.log("Game is already over. No more moves allowed.");
+            return;
+        }
+        
         if (board.getBoard()[y][x].getValue() !== "") {
             console.log("Invalid move")
             return;
         }
+
         board.chooseCell(y, x, getActivePlayer().symbol);
 
         // Check for Win or Tie
         if (checkwin(getActivePlayer().symbol, y, x) === true) {
             console.log("Game has finished")
+            gameOver = "win";
             return;
         } else if (checktie() === true) {
             console.log("The Game is a Tie")
+            gameOver = "tie";
             return;
         }
 
@@ -111,18 +121,30 @@ function GameController(
 
     printNewRound();
 
+    // Reset game
+
+    const resetGame = () => {
+        board.getBoard().forEach(row => row.forEach(cell => cell.addMove("")));
+        activePlayer = players[0]
+        gameOver = false;
+        printNewRound();
+    }
+
     return {
         playRound,
         getActivePlayer,
-        getBoard: board.getBoard
+        getBoard: board.getBoard,
+        isGameOver: () => gameOver,
+        reset: resetGame
     };
 }
 
 // Display screen
-function ScreenController() {
-    const game = GameController();
+function ScreenController(p1, p2) {
+    const game = GameController(p1, p2);
     const playerTurnDiv = document.querySelector(".turn");
     const boardDiv = document.querySelector(".board");
+    const reset = document.querySelector(".reset");
 
     const updateScreen = () => {
         // Clear screen
@@ -133,7 +155,14 @@ function ScreenController() {
         const activePlayer = game.getActivePlayer();
 
         // Display player's turn
-        playerTurnDiv.textContent = `${activePlayer.name}'s turn...`
+        if (game.isGameOver() === false) {
+            playerTurnDiv.textContent = `${activePlayer.name}'s turn...`;
+        }
+        else if (game.isGameOver() === "win") {
+            playerTurnDiv.textContent = `${activePlayer.name} wins!`;
+        } else {
+            playerTurnDiv.textContent = "Tie!"
+        }
 
         // Render board squares
         board.forEach((row, yValue) => {
@@ -147,6 +176,17 @@ function ScreenController() {
                 boardDiv.appendChild(cellbutton);
             })
         })
+        
+        reset.addEventListener("click", () => {
+            game.reset()
+            // Reset cells
+            const cells = document.querySelectorAll(".cell");
+            cells.forEach(cell => {
+                cell.textContent = "";
+            })
+            // Reset player move
+            playerTurnDiv.textContent = `${game.getActivePlayer().name}'s turn...`;
+        });
     }
     
     // Add Event listener
@@ -154,15 +194,35 @@ function ScreenController() {
         const SelectedCellX = e.target.dataset.x;
         const SelectedCellY = e.target.dataset.y;
         if (!SelectedCellX || !SelectedCellY) return;
-
+        
         game.playRound(SelectedCellY, SelectedCellX);
         updateScreen();
     }
     boardDiv.addEventListener("click", clickHandlerBoard);
+    
+    // Reset button
 
 
     // Inital render
     updateScreen();
 }
 
-ScreenController();
+function Dialog() {
+    const dialog = document.getElementById("playerDialog");
+    const form = document.getElementById("playerForm")
+    dialog.showModal();
+
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const playerOne = form.playerOne.value.trim() || "Player One";
+        const playerTwo = form.playerTwo.value.trim() || "Player Two";
+
+        ScreenController(playerOne, playerTwo);
+
+        dialog.close()
+
+    })
+}
+
+Dialog();

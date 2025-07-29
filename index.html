@@ -9,8 +9,21 @@
 </head>
 <body>
     <div class="container">
+        <h1>Tic-Tac-Toe</h1>
         <div class="turn"></div>
         <div class="board"></div>
+        <button class="reset">Reset</button>
     </div>
+
+    <dialog id="playerDialog">
+        <form id="playerForm" method="dialog">
+            <h2>Enter Player Names</h2>
+            <label for="playerOne">Player 1:</label>
+            <input type="text" id="playerOne" name="playerOne">
+            <label for="playerTwo">Player 2:</label>
+            <input type="text" id="playerTwo" name="playerTwo">
+            <button type="submit">Start Game</button>
+        </form>
+    </dialog>
 </body>
 </html>
